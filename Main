@@ -5,8 +5,14 @@ def loss_prediction_function(batch):
     '''
     :param batch: List of Placeholders
     :return: loss, prediction
-    *Note :Add Loss to collection
-        tf.add_to_collection('losses', loss)
+    
+    Note :
+            1 .use get_cpu_variable instead of tf.Variable
+            OR get_cpu_variable_shape to specify shape
+            (In case initializer doesnt accept shape as argument)
+
+            2. Add Loss to collection
+            Use tf.add_to_collection('losses', loss)
     '''
     #sequence same as batches
     input = batch[0] #Input
