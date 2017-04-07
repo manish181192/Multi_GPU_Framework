@@ -1,7 +1,8 @@
 # Multi_GPU_Framework
 Using Multiple GPU with tensorflow
 
-*Refer Main file for usage of framework.
+Main.py file implements multiple gpu training on MNIST data set
+
 *Default configurations:
   -Optimizer : AdamOptimizer( can be modified in multiGPU_Framework.py) 
 
