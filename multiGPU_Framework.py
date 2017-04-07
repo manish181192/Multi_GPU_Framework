@@ -18,7 +18,7 @@ class multiGPU_Framework(object):
         :return: Total loss
         '''
 
-        _, prediction = self.loss_prediction_function(self.batches[self.count_batch])
+        _, prediction = self.loss_prediction_function()
         self.count_batch +=1
         losses = tf.get_collection('losses', scope)
 
@@ -26,7 +26,7 @@ class multiGPU_Framework(object):
         return total_loss
 
 
-    def train_model(self, batches, num_epochs, learning_rate = 0.0001):
+    def train_model(self, num_epochs, placeholders, batch_generator, batch_size, learning_rate = 0.0001):
         '''
 
         :param batches: List of all batches
@@ -35,7 +35,7 @@ class multiGPU_Framework(object):
         :return: _
         '''
 
-        self.convert_to_tensor(batches)
+        # self.convert_to_tensor(batches)
         with tf.device('/cpu:0'):
             global_step = tf.get_variable(
                 'global_step', [],
@@ -65,15 +65,25 @@ class multiGPU_Framework(object):
                 session.run(init)
                 for epoch in range(num_epochs):
                     print "epoch : " + str(epoch)
-                    _, loss_value = session.run([train_op, loss])
+                    feed_dict = self.get_feed_dict(placeholders, batch_generator, batch_size)
+                    _, loss_value = session.run([train_op, loss], feed_dict= feed_dict)
+
                     print "LOSS: " + str(loss_value)
 
-    def convert_to_tensor(self, batches):
-        for batch in batches:
-            batch_components_tensors = []
-            for batch_component in batch:
-                batch_components_tensors.append(tf.pack(batch_component))
-            self.batches.append(batch_components_tensors)
+    def get_feed_dict(self, placeholders, batch_generator, batch_size):
+        values = batch_generator(batch_size)
+        feed_dict = {}
+        for i,ph in enumerate(placeholders):
+            feed_dict[ph] = values[i]
+
+        return feed_dict
+
+    # def convert_to_tensor(self, batches):
+    #     for batch in batches:
+    #         batch_components_tensors = []
+    #         for batch_component in batch:
+    #             batch_components_tensors.append(tf.pack(batch_component))
+    #         self.batches.append(batch_components_tensors)
 
 def get_cpu_variable(name, initializer, dtype = None):
     if dtype is None:
@@ -112,5 +122,3 @@ def average_gradients(tower_grads):
     grad_and_var = (grad, v)
     average_grads.append(grad_and_var)
   return average_grads
-
-
