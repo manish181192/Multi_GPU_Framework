@@ -27,14 +27,7 @@ class multiGPU_Framework(object):
 
 
     def train_model(self, num_epochs, placeholders, batch_generator, batch_size, learning_rate = 0.0001):
-        '''
-
-        :param batches: List of all batches
-        :param num_epochs: No of epochs
-        :param learning_rate: Learning rate
-        :return: _
-        '''
-
+        
         # self.convert_to_tensor(batches)
         with tf.device('/cpu:0'):
             global_step = tf.get_variable(
