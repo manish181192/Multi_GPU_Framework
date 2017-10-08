@@ -11,9 +11,7 @@ This project implements LSTM and CNN using the Multi-GPU framework on MNIST data
 To run this project you will need following packages:
 1. TensforFlow
 2. NumPy
-```
-Give examples
-```
+
 ## Authors
 
 * **Manish Vidyasagar**
