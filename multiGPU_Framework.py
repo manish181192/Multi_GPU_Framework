@@ -36,19 +36,20 @@ class multiGPU_Framework(object):
             optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate)
             # Calculate the gradients for each model tower.
             tower_grads = []
-            for i in xrange(self.num_gpus):
-                with tf.device('/gpu:%d' % i):
-                    with tf.name_scope('%s_%d' % (self.TOWER_NAME, i)) as scope:
-                        loss = self.calculate_loss(scope)
+            with tf.variable_scope(tf.get_variables_scope()):
+                for i in xrange(self.num_gpus):
+                    with tf.device('/gpu:%d' % i):
+                        with tf.name_scope('%s_%d' % (self.TOWER_NAME, i)) as scope:
+                            loss = self.calculate_loss(scope)
 
-                        # Reuse variables for the next tower.
-                        tf.get_variable_scope().reuse_variables()
+                            # Reuse variables for the next tower.
+                            tf.get_variable_scope().reuse_variables()
 
-                        # Calculate the gradients for the batch of data on this CIFAR tower.
-                        grads = optimizer.compute_gradients(loss)
+                            # Calculate the gradients for the batch of data on this CIFAR tower.
+                            grads = optimizer.compute_gradients(loss)
 
-                        # Keep track of the gradients across all towers.
-                        tower_grads.append(grads)
+                            # Keep track of the gradients across all towers.
+                            tower_grads.append(grads)
             grads = average_gradients(tower_grads)
             train_op = optimizer.apply_gradients(grads, global_step=global_step)
             init = tf.global_variables_initializer()
@@ -105,7 +106,7 @@ def average_gradients(tower_grads):
       grads.append(expanded_g)
 
     # Average over the 'tower' dimension.
-    grad = tf.concat(0, grads)
+    grad = tf.concat(grads, 0)
     grad = tf.reduce_mean(grad, 0)
 
     # Keep in mind that the Variables are redundant because they are shared
